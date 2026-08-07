@@ -1,3 +1,10 @@
+
+##################################################################
+Author Maria Teresa Lopez Cascales
+Postdoctoral Computational biologist / Bioinformatician 
+##################################################################
+
+
 # ClinicalTrialsCourse
 
 # Introduction to Clinical Data Science (CDS)
