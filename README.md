@@ -11,7 +11,7 @@ Postdoctoral Computational biologist / Bioinformatician
 
 
 
-# ClinicalTrialsCourse
+# Clinical Trials Course
 
 # Introduction to Clinical Data Science (CDS)
 
