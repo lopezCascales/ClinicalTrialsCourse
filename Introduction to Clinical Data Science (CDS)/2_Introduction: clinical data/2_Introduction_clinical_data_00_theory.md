@@ -2,10 +2,7 @@
 
 > Module: Introduction to Clinical Data Science (CDS)
 >
-> **Important note on sourcing:** The original course module is titled "Walk through the four-W's of
-> clinical data to understand where they come from and what they look like." I do not have access to the
-> paywalled Coursera video content, so I do **not** know the specific "four W's" framework as taught by
-> Dr. Wiley, and I am not going to guess or reconstruct it and present it as hers. What follows instead is
+> What follows is
 > **my own synthesis** of well-established, publicly documented concepts in clinical/biomedical informatics
 > about where clinical data comes from and what it looks like. If I later get access to the actual course
 > content, this section should be revised to reflect it accurately, and this note updated.
