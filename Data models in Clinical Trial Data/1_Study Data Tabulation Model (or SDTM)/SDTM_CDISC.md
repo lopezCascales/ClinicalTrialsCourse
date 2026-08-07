@@ -1,0 +1,118 @@
+Developed by CDISC (Clinical Data Interchange Standards Consortium)
+
+SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).
+
+The Study Data Tabulation Model (SDTM) provides a standard for organizing and formatting data to streamline processes in 
+collection, management, analysis and reporting. Implementing SDTM supports data aggregation and warehousing; fosters mining and reuse; 
+facilitates sharing; helps perform due diligence and other important data review activities; and improves the regulatory review and approval process. 
+
+SDTM is also used in non-clinical data (SEND), medical devices and pharmacogenomics/genetics studies. SDTM is one of the required 
+standards for data submission to FDA (U.S.) and PMDA (Japan).
+
+SDTM Theory and Application (Virtual | Microsoft Teams)
+https://learnstore.cdisc.org/product?catalog=SDTMTAHCTED2
+
+The Study Data Tabulation Model (SDTM) is a specification for structuring pre-clinical and clinical data to support interoperable 
+and reusable data sharing, including submissions to the U.S. Food and Drug Administration (FDA) and Japan’s Pharmaceutical and Medical 
+Devices Agency (PMDA) in support of marketing applications.
+
+https://www.youtube.com/watch?v=qQLi-RFM9P4
+
+    -Describe the SDTM model and implementation guide and the relationships between them.
+    -Model timing variables correctly for relative, actual, planned and time point data
+    -Identify Findings About candidate data and model them correctly
+    -Construct accurate relationship datasets for non-standard variables and linkages across datasets
+
+A data model respresent a real world situation about which a database of collected data 
+can be structured. 
+In our case the data model represent a trial or research study. 
+The model organizes elements of data and standarizes how these elements relate to one or another
+and includes properties of the real world entities. 
+It is important to understand that the sdtm is the overaching model from which multiple 
+implementations are based. 
+
+For example the nonclinical sample SENDIG,  the clinical SDTMIG, and the MEDICAL DEVICES, and 
+the terapeutic area user guides (TAUGs)
+
+
+The SDTM model define the structure for all data or research data regardless 
+of how it was collected. 
+
+OBSERVATION CLASS
+  Highlevel grouping loosely based on the topic being represented by the data
+
+SDTM : 3 GENERAL OBSERVATION CLASSES
+  1- Interventions
+  2- Events
+  3- Findings
+This observation classes  are define in a model by the set of variables available 
+whithin each that are used to represent the data around the concepts inherent to that class. 
+Most data can fit into one of this 3 classes. 
+
+For example: 
+  1- Interventions: Concomital medications, Exposure, Substance use.
+  2- Events: Adverse event, Disposition, Medical History, Protocol Deviation, Clinical Event
+  3- Findings: ECG, Incl\Escl, Labs, Physical Exam, Pharmacokinetics concentrations, 
+Mycrobiology specimen, Questionnaire, SubjChar, Vital Sign, Drug Accountability, 
+Pharmacokinetics parameters, Microbiology Susceptibility. 
+
+There are also, other SPECIAL PURPOSE DATASETS, such as Demographics, Comments, 
+Subject elements (age, Gender, Weigth, Race..), Subject Visits, Familiar antecedents.
+They are SPECIFIC STANDARIZED STRUCTURES for representing additional information, that 
+would not otherwise fit into the general observation classes. 
+
+
+https://www.youtube.com/watch?v=mI2jLx-ZEWE
+INTRODUCTION OF SDTM Implementation Guide
+
+https://www.youtube.com/watch?v=mI2jLx-ZEWE
+Introduction to SEND Implementation Guide
+
+You will learn how this observation classes are further broken down into domains 
+which are logical grouping of data organized around a particular topic. 
+
+You will notice that variables as SDTM all begin with -- (This dashes are placeholders.)
+--TESTCD
+--TEST
+--MODIFY
+--TSTDTL
+--CAT
+--SCAT
+###############################################################################################################
+
+
+Variables SDTM
+    Can be broken in 5 principal types 
+    1- IDENTIFIER. Indicate d Subject, the record sequence, and other Identify information
+                    variables allow the study, subject, domain and sequence number of a record to be identified.
+            Examples_: STUDYID, DOMAIN, SUBJID, --SEQ
+    2- TOPIC VARIABLE: Contain the focus of the observation. Therefore this variables 
+are the primary difference in what separates the individual observation classes
+            Examples_: --TRT, --TERM, --TESTCD
+    3- QUALIFIER: variables describe the results of an observation with text or numeric values.
+Providing additional information about the topic. They can be use to qualify 
+the other variables whithin the record such as the results or the topic, or 
+they can qualify the entire record.                
+            Examples_: GROUPING, RESULT, SYNONYM, RECORD, VARIABLE
+    4- TIMING VARIABLE: Describe aspects of the timing of the observatio. 
+                        variables describe the date, time, and duration of an observation.
+            Examples_: DATE/TIMES, STUDY DAYs, DURATIONS, INTERVALS, VISITS, TIME POINTS, RELATIVE TIMES 
+    5- RULE: variables describe algorithms or methods for calculations or looping conditions and are mainly
+used for the Trial Design domain.
+            Examples_: TATRANS, –ENRL
+
+
+In the example below, variable roles are shown in the top row of the table.
+
+Identifier	Identifier	Qualifier	                        Topic	        Qualifier	Timing
+USUBJID	    MHSEQ	    MHCAT	                            MHTERM	        MHONGO	    VISITNUM
+199840	    1	        Nervous System Medical History	    Neuralgia	    N	        3
+199840	    2	        Nervous System Medical History	    Epilepsy	    Y	        3
+199840	    3	        Respiratory System Medical History	Laryngitis	    N	        3
+
+Qualifier variables are further categorized as follows:
+    Grouping       qualifiers group observations together.
+    Result         qualifiers describe the result for a finding.
+    Synonym        qualifiers contain another name for the observation.
+    Record         qualifiers define the supplementary attributes of an observation.
+    Variable       qualifiers describe the value of an observation.
