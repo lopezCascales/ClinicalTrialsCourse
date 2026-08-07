@@ -1,0 +1,157 @@
+---
+title: "Practice: R and Tidyverse for Clinical Data"
+output: html_document
+---
+
+<!--
+Dataset: MIMIC-III Clinical Database Demo v1.4 (real, openly-accessible, 100 patients)
+See ../00_setup_mimic_demo.md for how to download the CSVs.
+All table/column names below are verified against the real MIMIC-III schema (same source used in the
+SQL practice file, 3_Tools_SQL/practice/01_clinical_queries.sql).
+-->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(readr)
+library(lubridate)
+
+# Adjust this path to wherever you downloaded/unzipped the MIMIC-III demo CSVs
+data_dir <- "mimic-iii-demo"
+```
+
+## 1. Load the tables
+
+```{r load-data}
+patients        <- read_csv(file.path(data_dir, "PATIENTS.csv"))
+admissions      <- read_csv(file.path(data_dir, "ADMISSIONS.csv"))
+icustays        <- read_csv(file.path(data_dir, "ICUSTAYS.csv"))
+diagnoses_icd   <- read_csv(file.path(data_dir, "DIAGNOSES_ICD.csv"))
+d_icd_diagnoses <- read_csv(file.path(data_dir, "D_ICD_DIAGNOSES.csv"))
+labevents       <- read_csv(file.path(data_dir, "LABEVENTS.csv"))
+d_labitems      <- read_csv(file.path(data_dir, "D_LABITEMS.csv"))
+```
+
+## 2. Orientation
+
+```{r orientation}
+nrow(patients)
+n_distinct(admissions$subject_id)
+```
+
+## 3. filter() — patients who died (equivalent to SQL's WHERE)
+
+```{r filter-deceased}
+deceased <- patients |>
+  filter(expire_flag == 1) |>
+  select(subject_id, gender, dob, dod)
+
+deceased
+```
+
+## 4. left_join() / inner_join() — diagnoses with readable labels
+
+This is the tidyverse equivalent of the SQL JOIN between `DIAGNOSES_ICD` (fact table) and
+`D_ICD_DIAGNOSES` (lookup table):
+
+```{r join-diagnoses}
+diagnoses_labeled <- diagnoses_icd |>
+  inner_join(d_icd_diagnoses, by = "icd9_code") |>
+  arrange(subject_id, seq_num)
+
+diagnoses_labeled |> head(20)
+```
+
+## 5. group_by() + summarise() — most common diagnoses (equivalent to SQL GROUP BY)
+
+```{r group-summarise}
+top_diagnoses <- diagnoses_labeled |>
+  distinct(subject_id, hadm_id, short_title) |>   # avoid double-counting within an admission
+  count(short_title, name = "n_admissions") |>
+  arrange(desc(n_admissions))
+
+top_diagnoses |> head(10)
+```
+
+## 6. Building an analytic cohort table (multi-table join, mirrors the SQL 3-table join)
+
+```{r cohort-table}
+primary_diagnosis <- diagnoses_icd |>
+  filter(seq_num == 1) |>          # seq_num = 1 -> primary diagnosis
+  inner_join(d_icd_diagnoses, by = "icd9_code") |>
+  select(subject_id, hadm_id, primary_diagnosis = short_title)
+
+cohort <- patients |>
+  select(subject_id, gender) |>
+  inner_join(admissions |> select(subject_id, hadm_id, admittime, admission_type),
+             by = "subject_id") |>
+  inner_join(primary_diagnosis, by = c("subject_id", "hadm_id")) |>
+  arrange(admittime)
+
+cohort |> head(10)
+```
+
+## 7. Working with lab results
+
+```{r lab-results}
+lab_results_labeled <- labevents |>
+  inner_join(d_labitems, by = "itemid")
+
+# Most frequently measured labs
+lab_results_labeled |>
+  count(label, fluid, category, name = "n_results") |>
+  arrange(desc(n_results)) |>
+  head(10)
+
+# Abnormal results only
+abnormal_labs <- lab_results_labeled |>
+  filter(flag == "abnormal") |>
+  select(subject_id, label, charttime, value, valueuom, flag) |>
+  arrange(charttime)
+
+abnormal_labs |> head(20)
+```
+
+## 8. Dates: ICU length of stay
+
+`ICUSTAYS.los` is precomputed by MIMIC-III in days — no manual date arithmetic needed here,
+but this is the natural place to introduce `lubridate` for later modules that don't have a
+precomputed duration column.
+
+```{r icu-los}
+icustays |>
+  select(subject_id, hadm_id, icustay_id, first_careunit, intime, outtime, los) |>
+  arrange(desc(los)) |>
+  head(10)
+```
+
+## 9. Visualization with ggplot2
+
+```{r plot-diagnoses}
+top_diagnoses |>
+  head(10) |>
+  ggplot(aes(x = reorder(short_title, n_admissions), y = n_admissions)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top 10 primary diagnoses by number of admissions",
+    subtitle = "MIMIC-III Clinical Database Demo (n = 100 patients)",
+    x = NULL,
+    y = "Number of admissions"
+  )
+```
+
+```{r plot-los}
+icustays |>
+  ggplot(aes(x = los)) +
+  geom_histogram(binwidth = 1) +
+  labs(
+    title = "Distribution of ICU length of stay",
+    subtitle = "MIMIC-III Clinical Database Demo (n = 100 patients)",
+    x = "Length of stay (days)",
+    y = "Count"
+  )
+```
